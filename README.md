@@ -1,6 +1,7 @@
 This code analyses a dataset compiled by Miller (2012) on geographical ranges, fungal pathogen species richness, and other functional traits of plant species native to the USA.
 
 Link to paper: https://www.journals.uchicago.edu/doi/10.1086/663676
+
 Link to dataset: https://datadryad.org/dataset/doi:10.5061/dryad.q1p71q5q
 
 This dataset has since been cleaned up for use here: see pathogen_richness.csv attached on GitHub
