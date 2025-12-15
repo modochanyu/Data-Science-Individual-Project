@@ -4,7 +4,7 @@ Link to paper: https://www.journals.uchicago.edu/doi/10.1086/663676
 
 Link to dataset: https://datadryad.org/dataset/doi:10.5061/dryad.q1p71q5q
 
-This dataset has since been cleaned up for use here: see pathogen_richness.csv attached on GitHub
+The dataset linked above has since been cleaned up for use here: pathogen_richness.csv attached on GitHub is the new cleaned up version.
 
 ## Explanations of columns in the dataset: ##
 
@@ -24,5 +24,6 @@ LogGeoRangeCO: estimate of the geographical range of the species by adding toget
 
 LogPSR: log transformed number of fungal pathogen species recorded on the species
 
+## Code requirements ##
 
 Before starting, add the packages pandas, seaborn, and scikit-learn
