@@ -5,7 +5,7 @@ Link to dataset: https://datadryad.org/dataset/doi:10.5061/dryad.q1p71q5q
 
 This dataset has since been cleaned up for use here: see pathogen_richness.csv attached on GitHub
 
-## explanations of columns in the dataset: ##
+## Explanations of columns in the dataset: ##
 
 CI: citation index: a measure of how often the species in question has been studied. Was calculated by number of papers mentioning it on Web of Science minus 1, all log transformed.
 Loght: log transformed maximum height value recorded for the species
