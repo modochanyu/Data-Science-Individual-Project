@@ -1,0 +1,142 @@
+"""
+
+Script attempting to predict whether species of trees from the US are gymnosperms or angiosperms based on the relationship between their geographical range size and their fungal pathogen species richness
+
+Ted Warner, 2025
+
+"""
+
+#read in my data, AGAIN, CHANGE THIS LATER FOR ACCESSIBILITY
+import pandas as pd
+data=pd.read_csv("pathogen_richness.csv",
+                index_col="G_S")
+data.head()
+
+#some simple descriptive statistics
+data["LogPSR"].mean()
+
+data["LogGeoRangeST"].mean() #this metric will act as an overestimate of species range
+
+data["LogGeoRangeCO"].mean() #this metric will act as an underestimate of species range
+
+#initial data visualisation: what associations are there between variables
+import seaborn as sns
+sns.set_theme()
+
+#citation index x pathogen richness
+sns.relplot(
+    data=data,
+    x="CI",
+    y="LogPSR",
+    hue="ANG_GYM",
+)
+
+#height x pathogen richness
+sns.relplot(
+    data=data,
+    x="Loght",
+    y="LogPSR",
+    hue="ANG_GYM",
+)
+
+#state-estimated geographic range x pathogen richness
+sns.relplot(
+    data=data,
+    x="LogGeoRangeST",
+    y="LogPSR",
+    hue="ANG_GYM",
+)
+
+#county-estimated geographic range x pathogen richness
+sns.relplot(
+    data=data,
+    x="LogGeoRangeCO",
+    y="LogPSR",
+    hue="ANG_GYM",
+)
+
+#clade x pathogen species richness
+sns.catplot(
+    data=data,
+    x="ANG_GYM",
+    y="LogPSR",
+    kind="box",
+)
+
+#functional group x pathogen species richness
+sns.catplot(
+    data=data,
+    x="Functional_group",
+    y="LogPSR",
+    kind="box",
+)
+#higher pathogen species richness in trees than smaller forms of plants: could this reflect size differences?
+
+#as a way to practice classification using Python, let's see if I can predict whether a species is a gymnosperm or angiosperm from the relationship between its
+# geographical range (state-based) and fungal pathogen species richness
+#I will use the state-based geographical range as the gymnosperm and angiosperm data points appear to overlap less (see below)
+sns.relplot(
+    data=data,
+    x="LogGeoRangeCO",
+    y="LogPSR",
+    hue="ANG_GYM",
+)
+
+#fit a model to see if we can classify trees into angiosperm or gymnosperm categories based on LogGeoRangeCO x LogPSR relationship
+X = data[["LogGeoRangeCO", "LogPSR"]]
+y = data["ANG_GYM"]
+
+#split data into training and testing subsets
+from sklearn.model_selection import train_test_split
+train_X, test_X, train_y, test_y = train_test_split(X, y)
+
+#fit model using KNeighbouraClassifier
+from sklearn.neighbors import KNeighborsClassifier
+
+model = KNeighborsClassifier(n_neighbors=5)
+model.fit(train_X, train_y)
+
+#test how well the model can classify the data
+model.score(test_X, test_y)
+
+#it's a very solid fit: let's view which points are predicted well and which aren't
+from sklearn.inspection import DecisionBoundaryDisplay
+
+DecisionBoundaryDisplay.from_estimator(model, X, cmap="PRGn")
+sns.scatterplot(data=X, x="LogGeoRangeCO", y="LogPSR", hue=y, palette="Dark2")
+
+#currently it looks like gymnosperm identity is being poorly predicted, can I adjust the nearest neighbours parameters?
+#Let's use GridSearchCV to find the best hyperparameter values.
+from sklearn.model_selection import GridSearchCV
+
+hyperparameters = {
+    "n_neighbors" : range(1, 200),
+}
+model = GridSearchCV(KNeighborsClassifier(), hyperparameters)
+model.fit(train_X, train_y)
+
+#plot mean test scores for hyperparameters tested
+cv_results = pd.DataFrame(model.cv_results_)
+cv_results.plot.scatter("param_n_neighbors", "mean_test_score", yerr="std_test_score", figsize=(10,8))
+#test scores completely plateau after ~30 neighbours. Best scores appear to be around 15-17
+
+#replot with new axes to identify the best hyperparameters more easily
+hyperparameters = {
+    "n_neighbors" : range(1, 40),
+}
+model = GridSearchCV(KNeighborsClassifier(), hyperparameters)
+model.fit(train_X, train_y)
+
+cv_results = pd.DataFrame(model.cv_results_)
+cv_results.plot.scatter("param_n_neighbors", "mean_test_score", yerr="std_test_score", figsize=(10,8))
+#ultimately changing the number of neighbours changes the test score very little, as SDs are large for all values and overlap a lot.
+
+#best score was n=15, and SD was a bit smaller than for other values, so I'll fit a final model with this value
+model5 = KNeighborsClassifier(n_neighbors=15)
+model5.fit(train_X, train_y)
+
+#Visualise how points are classified: this model does seem to work better than some of the previous ones I fit but is far from perfect. I suspect this data set is hard to classify in this way
+DecisionBoundaryDisplay.from_estimator(model5, X, cmap="Pastel2")
+sns.scatterplot(data=X, x="LogGeoRangeCO", y="LogPSR", hue=y, palette="Dark2")
+
+#more gymnosperms are being correctly predicted by the model, but now some angiosperms are incorrectly predicted.
