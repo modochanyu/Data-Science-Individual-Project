@@ -27,3 +27,5 @@ LogPSR: log transformed number of fungal pathogen species recorded on the specie
 ## Code requirements ##
 
 Before starting, add the packages pandas, seaborn, and scikit-learn
+
+The code is designed to read a file from your working directory, so make sure to add pathogen_richness to your working directory!
