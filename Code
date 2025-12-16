@@ -6,7 +6,8 @@ Ted Warner, 2025
 
 """
 
-#read in my data, AGAIN, CHANGE THIS LATER FOR ACCESSIBILITY
+#read in dataset: make sure to add pathogen_richness.csv to your working directory!
+
 import pandas as pd
 data=pd.read_csv("pathogen_richness.csv",
                 index_col="G_S")
@@ -90,7 +91,7 @@ y = data["ANG_GYM"]
 from sklearn.model_selection import train_test_split
 train_X, test_X, train_y, test_y = train_test_split(X, y)
 
-#fit model using KNeighbouraClassifier
+#fit model using KNeighboursClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
 model = KNeighborsClassifier(n_neighbors=5)
